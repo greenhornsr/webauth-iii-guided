@@ -2,6 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 
 const Users = require('../users/users-model.js');
+const myToken = require('./generateToken');
 
 // for endpoints beginning with /api/auth
 router.post('/register', (req, res) => {
@@ -25,14 +26,20 @@ router.post('/login', (req, res) => {
     .first()
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        //generate token
+        const token = myToken(user);
+        console.log(token)
+
         res.status(200).json({
           message: `Welcome ${user.username}!`,
+          token
         });
       } else {
         res.status(401).json({ message: 'Invalid Credentials' });
       }
     })
     .catch(error => {
+      console.log(error)
       res.status(500).json(error);
     });
 });
